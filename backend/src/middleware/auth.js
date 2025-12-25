@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   const header = req.headers.authorization || "";
   const [scheme, token] = header.split(" ");
 
@@ -10,14 +11,24 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET || "dev_secret");
+
+    // IMPORTANT: role/email in JWT can become stale (e.g., seed upgrades user to admin).
+    // Use DB as the source of truth for authorization decisions.
+    const user = await User.findById(payload.sub).select("email role");
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
     req.user = {
-      id: payload.sub,
-      email: payload.email,
-      role: payload.role,
+      id: String(user._id),
+      email: user.email,
+      role: user.role,
     };
     return next();
-  } catch {
-    return res.status(401).json({ error: "Unauthorized" });
+  } catch (err) {
+    // If jwt.verify fails, treat as unauthorized. For DB errors, bubble up to 500.
+    if (err && (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError")) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    return next(err);
   }
 }
 
