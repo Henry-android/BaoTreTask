@@ -175,7 +175,7 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex overflow-hidden font-sans selection:bg-indigo-100 selection:text-indigo-700">
       {/* Sidebar Navigation */}
       <Sidebar
-        activeTab={activeTab === "AI Insights" ? "Dashboard" : activeTab}
+        activeTab={activeTab}
         setActiveTab={setActiveTab}
         user={currentUser}
         onLogout={() => {
