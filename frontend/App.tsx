@@ -171,6 +171,8 @@ const App: React.FC = () => {
     );
   }
 
+  const canCreateTask = currentUser.role === "admin";
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex overflow-hidden font-sans selection:bg-indigo-100 selection:text-indigo-700">
       {/* Sidebar Navigation */}
@@ -213,29 +215,31 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl font-bold transition-all shadow-sm">
-                <i className="fa-solid fa-filter"></i>
-                Filter
-              </button>
-              <button
-                onClick={() => {
-                  if (currentUser.role !== "admin") {
-                    alert("Chỉ tài khoản admin mới có thể tạo task.");
-                    return;
-                  }
-                  setNewTaskError(null);
-                  setNewTaskOpen(true);
-                }}
-                className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-100"
-              >
-                <i className="fa-solid fa-plus"></i>
-                New Task
-              </button>
-            </div>
+            {(activeTab === "Dashboard" || activeTab === "Projects") && (
+              <div className="flex items-center gap-4">
+                <button className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl font-bold transition-all shadow-sm">
+                  <i className="fa-solid fa-filter"></i>
+                  Filter
+                </button>
+                <button
+                  onClick={() => {
+                    if (!canCreateTask) {
+                      alert("Chỉ tài khoản admin mới có thể tạo task.");
+                      return;
+                    }
+                    setNewTaskError(null);
+                    setNewTaskOpen(true);
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-100"
+                >
+                  <i className="fa-solid fa-plus"></i>
+                  New Task
+                </button>
+              </div>
+            )}
           </header>
 
-          {activeTab === "Dashboard" ? (
+          {activeTab === "Dashboard" && (
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
               {computedTasks.map((task) => (
                 <TaskCard
@@ -245,17 +249,136 @@ const App: React.FC = () => {
                 />
               ))}
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-[60vh] text-slate-300">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6">
-                <i className="fa-solid fa-compass-drafting text-4xl text-slate-200"></i>
+          )}
+
+          {activeTab === "Projects" && (
+            <div className="space-y-6">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
+                  Overview
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="text-sm font-bold text-slate-700">
+                    Total tasks: {computedTasks.length}
+                  </span>
+                  <span className="text-sm font-bold text-red-600">
+                    Overdue: {overdueTasks.length}
+                  </span>
+                  <span className="text-sm font-bold text-slate-500">
+                    Role: {currentUser.role}
+                  </span>
+                </div>
               </div>
-              <p className="text-xl font-bold text-slate-400">
-                Section Under Construction
-              </p>
-              <p className="text-sm font-medium mt-1 uppercase tracking-widest opacity-50">
-                Guardian System v2.1
-              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                {computedTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onAnalyze={(task) => setSelectedTask(task)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "AI Insights" && (
+            <div className="space-y-6">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
+                    Overdue Intelligence
+                  </p>
+                  <p className="text-sm font-bold text-slate-700">
+                    Overdue tasks detected: {overdueTasks.length}
+                  </p>
+                  <p className="text-xs font-medium text-slate-500 mt-1">
+                    Nhấn “Scan overdue now” để backend tạo log và (tuỳ chọn) gọi AI.
+                  </p>
+                </div>
+
+                <button
+                  onClick={async () => {
+                    try {
+                      await scanOverdue();
+                      const [t, l] = await Promise.all([fetchTasks(), fetchLogs()]);
+                      setTasks(t);
+                      setLogs(l);
+                    } catch (err) {
+                      console.error(err);
+                      alert(
+                        "Scan thất bại. Hãy kiểm tra backend (4000) và MongoDB đang chạy."
+                      );
+                    }
+                  }}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-100"
+                >
+                  <i className="fa-solid fa-wand-magic-sparkles"></i>
+                  Scan overdue now
+                </button>
+              </div>
+
+              {overdueTasks.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-[45vh] text-slate-300">
+                  <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 mb-6">
+                    <i className="fa-solid fa-circle-check text-4xl text-emerald-200"></i>
+                  </div>
+                  <p className="text-xl font-bold text-slate-400">
+                    No overdue tasks
+                  </p>
+                  <p className="text-sm font-medium mt-1 uppercase tracking-widest opacity-50">
+                    System looks healthy
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                  {overdueTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onAnalyze={(task) => setSelectedTask(task)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "Settings" && (
+            <div className="max-w-2xl space-y-6">
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-4">
+                  Account
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                      Email
+                    </span>
+                    <span className="text-sm font-bold text-slate-800">
+                      {currentUser.email}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                      Role
+                    </span>
+                    <span className="text-sm font-bold text-indigo-600">
+                      {currentUser.role}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
+                  Notes
+                </p>
+                <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                  - Tạo task mới yêu cầu quyền admin.
+                  <br />- Các API đều yêu cầu đăng nhập (JWT).
+                </p>
+              </div>
             </div>
           )}
         </main>

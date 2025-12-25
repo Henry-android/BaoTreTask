@@ -25,7 +25,10 @@ async function requireAuth(req, res, next) {
     return next();
   } catch (err) {
     // If jwt.verify fails, treat as unauthorized. For DB errors, bubble up to 500.
-    if (err && (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError")) {
+    if (
+      err &&
+      (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError")
+    ) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     return next(err);
