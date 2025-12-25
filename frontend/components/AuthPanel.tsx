@@ -25,7 +25,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onAuthed }) => {
           : await register(email, password);
       onAuthed(resp.token);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Authentication failed");
+      setError(err instanceof Error ? err.message : "Xác thực thất bại");
     } finally {
       setLoading(false);
     }
@@ -55,7 +55,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onAuthed }) => {
                   : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              Login
+              Đăng nhập
             </button>
             <button
               type="button"
@@ -66,7 +66,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onAuthed }) => {
                   : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
               }`}
             >
-              Register
+              Đăng ký
             </button>
           </div>
 
@@ -92,7 +92,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onAuthed }) => {
             </div>
             <div>
               <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                Password
+                Mật khẩu
               </label>
               <input
                 value={password}
@@ -117,7 +117,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({ onAuthed }) => {
                   loading ? "fa-spinner fa-spin" : "fa-right-to-bracket"
                 }`}
               ></i>
-              {mode === "login" ? "Sign In" : "Create Account"}
+              {mode === "login" ? "Đăng nhập" : "Tạo tài khoản"}
             </button>
           </form>
         </div>

@@ -69,6 +69,13 @@ const App: React.FC = () => {
 
   const overdueTasks = computedTasks.filter((t) => t.isOverdue);
 
+  const tabTitle: Record<MenuTab, string> = {
+    Dashboard: "Tổng quan",
+    Projects: "Dự án",
+    "AI Insights": "AI Insights",
+    Settings: "Cài đặt",
+  };
+
   // Resolve current user from token
   useEffect(() => {
     (async () => {
@@ -129,7 +136,7 @@ const App: React.FC = () => {
         taskTitle: task.title,
         timestamp: getTimestamp(),
         message:
-          "System Alert: Task is overdue. Escalating to LLM for mitigation plan.",
+          "Cảnh báo hệ thống: Công việc đang trễ hạn. Chuyển cho AI để đề xuất phương án xử lý.",
       })),
     ]);
 
@@ -149,7 +156,7 @@ const App: React.FC = () => {
             taskTitle: "System",
             timestamp: getTimestamp(),
             message:
-              "AI Alert: Backend scan failed. Please start backend and MongoDB.",
+              "Cảnh báo AI: Quét dữ liệu thất bại. Hãy bật backend và MongoDB.",
           },
         ]);
       }
@@ -200,18 +207,18 @@ const App: React.FC = () => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h2 className="text-4xl font-black tracking-tight text-slate-900">
-                  {activeTab}
+                  {tabTitle[activeTab]}
                 </h2>
                 {activeTab === "Dashboard" && overdueTasks.length > 0 && (
                   <div className="px-3 py-1 bg-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-red-200">
-                    {overdueTasks.length} Alerts
+                    {overdueTasks.length} cảnh báo
                   </div>
                 )}
               </div>
               <p className="text-slate-500 font-medium">
                 {activeTab === "Dashboard"
-                  ? "Welcome back. Here is your project automated overview."
-                  : `Managing all ${activeTab} items.`}
+                  ? "Chào mừng quay lại. Đây là tổng quan tự động của dự án."
+                  : "Quản lý nội dung theo từng mục."}
               </p>
             </div>
 
@@ -219,7 +226,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-4">
                 <button className="flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl font-bold transition-all shadow-sm">
                   <i className="fa-solid fa-filter"></i>
-                  Filter
+                  Bộ lọc
                 </button>
                 <button
                   onClick={() => {
@@ -255,17 +262,17 @@ const App: React.FC = () => {
             <div className="space-y-6">
               <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
-                  Overview
+                  Tổng quan
                 </p>
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm font-bold text-slate-700">
-                    Total tasks: {computedTasks.length}
+                    Tổng số công việc: {computedTasks.length}
                   </span>
                   <span className="text-sm font-bold text-red-600">
-                    Overdue: {overdueTasks.length}
+                    Trễ hạn: {overdueTasks.length}
                   </span>
                   <span className="text-sm font-bold text-slate-500">
-                    Role: {currentUser.role}
+                    Vai trò: {currentUser.role}
                   </span>
                 </div>
               </div>
@@ -287,13 +294,13 @@ const App: React.FC = () => {
               <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
-                    Overdue Intelligence
+                    Phân tích trễ hạn
                   </p>
                   <p className="text-sm font-bold text-slate-700">
-                    Overdue tasks detected: {overdueTasks.length}
+                    Số công việc trễ hạn: {overdueTasks.length}
                   </p>
                   <p className="text-xs font-medium text-slate-500 mt-1">
-                    Nhấn “Scan overdue now” để backend tạo log và (tuỳ chọn) gọi AI.
+                    Nhấn “Quét ngay” để backend tạo log và (tuỳ chọn) gọi AI.
                   </p>
                 </div>
 
@@ -301,7 +308,10 @@ const App: React.FC = () => {
                   onClick={async () => {
                     try {
                       await scanOverdue();
-                      const [t, l] = await Promise.all([fetchTasks(), fetchLogs()]);
+                      const [t, l] = await Promise.all([
+                        fetchTasks(),
+                        fetchLogs(),
+                      ]);
                       setTasks(t);
                       setLogs(l);
                     } catch (err) {
@@ -314,7 +324,7 @@ const App: React.FC = () => {
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-100"
                 >
                   <i className="fa-solid fa-wand-magic-sparkles"></i>
-                  Scan overdue now
+                  Quét ngay
                 </button>
               </div>
 
@@ -324,10 +334,10 @@ const App: React.FC = () => {
                     <i className="fa-solid fa-circle-check text-4xl text-emerald-200"></i>
                   </div>
                   <p className="text-xl font-bold text-slate-400">
-                    No overdue tasks
+                    Không có công việc trễ hạn
                   </p>
                   <p className="text-sm font-medium mt-1 uppercase tracking-widest opacity-50">
-                    System looks healthy
+                    Hệ thống đang ổn định
                   </p>
                 </div>
               ) : (
@@ -348,7 +358,7 @@ const App: React.FC = () => {
             <div className="max-w-2xl space-y-6">
               <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-4">
-                  Account
+                  Tài khoản
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -361,7 +371,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black uppercase tracking-widest text-slate-400">
-                      Role
+                      Vai trò
                     </span>
                     <span className="text-sm font-bold text-indigo-600">
                       {currentUser.role}
@@ -372,7 +382,7 @@ const App: React.FC = () => {
 
               <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
                 <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-2">
-                  Notes
+                  Ghi chú
                 </p>
                 <p className="text-sm font-medium text-slate-600 leading-relaxed">
                   - Tạo task mới yêu cầu quyền admin.
@@ -393,12 +403,12 @@ const App: React.FC = () => {
             </div>
             <h4 className="text-xs font-black uppercase tracking-[0.2em] mb-4 flex items-center gap-2 text-indigo-200">
               <i className="fa-solid fa-microchip"></i>
-              Project Pulse
+              Nhịp dự án
             </h4>
             <div className="flex items-end gap-3 mb-4">
               <span className="text-5xl font-black">72%</span>
               <span className="text-xs font-bold text-indigo-200 mb-2 uppercase tracking-tighter">
-                Efficiency
+                Hiệu suất
               </span>
             </div>
             <div className="w-full bg-indigo-500/50 rounded-full h-2.5 mb-4 p-0.5">
@@ -408,8 +418,7 @@ const App: React.FC = () => {
               ></div>
             </div>
             <p className="text-xs font-bold text-indigo-100 leading-relaxed italic">
-              "AI identifies critical bottlenecks in 3 modules. Optimization
-              recommended."
+              "AI phát hiện các điểm nghẽn quan trọng. Nên ưu tiên tối ưu các hạng mục có rủi ro cao."
             </p>
           </div>
         </aside>

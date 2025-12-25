@@ -45,7 +45,7 @@ const AIModal: React.FC<AIModalProps> = ({ task, onClose }) => {
               <h2 className="text-xl font-black text-slate-900">Guardian AI</h2>
               <p className="text-xs text-indigo-600 font-bold flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                Strategic Analysis
+                Phân tích chiến lược
               </p>
             </div>
           </div>
@@ -61,7 +61,7 @@ const AIModal: React.FC<AIModalProps> = ({ task, onClose }) => {
         <div className="p-8 max-h-[65vh] overflow-y-auto">
           <div className="mb-8 p-6 bg-indigo-50/50 rounded-3xl border border-indigo-100/50">
             <p className="text-[10px] text-indigo-400 uppercase tracking-[0.2em] font-black mb-1">
-              Analyzing Target
+              Đang phân tích
             </p>
             <p className="text-xl font-bold text-slate-900 leading-tight">
               {task.title}
@@ -90,7 +90,7 @@ const AIModal: React.FC<AIModalProps> = ({ task, onClose }) => {
                   <span className="typing-dot w-2 h-2 bg-indigo-400 rounded-full"></span>
                   <span className="typing-dot w-2 h-2 bg-indigo-400 rounded-full"></span>
                   <span className="ml-3 text-xs font-bold text-slate-400 italic">
-                    Processing neural patterns...
+                    Đang xử lý dữ liệu...
                   </span>
                 </div>
               ) : (
@@ -102,7 +102,7 @@ const AIModal: React.FC<AIModalProps> = ({ task, onClose }) => {
                         <i className="fa-solid fa-triangle-exclamation"></i>
                       </div>
                       <h3 className="text-xs font-black uppercase tracking-widest text-red-600">
-                        The Risk
+                        Rủi ro
                       </h3>
                     </div>
                     <p className="text-slate-600 text-sm leading-relaxed font-medium pl-8">
@@ -117,7 +117,7 @@ const AIModal: React.FC<AIModalProps> = ({ task, onClose }) => {
                         <i className="fa-solid fa-lightbulb"></i>
                       </div>
                       <h3 className="text-xs font-black uppercase tracking-widest text-emerald-600">
-                        The Solution
+                        Giải pháp
                       </h3>
                     </div>
                     <p className="text-slate-600 text-sm leading-relaxed font-medium pl-8">
@@ -132,7 +132,7 @@ const AIModal: React.FC<AIModalProps> = ({ task, onClose }) => {
                         <i className="fa-solid fa-bell"></i>
                       </div>
                       <h3 className="text-xs font-black uppercase tracking-widest text-indigo-600">
-                        Guardian Note
+                        Ghi chú
                       </h3>
                     </div>
                     <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 italic text-slate-500 text-sm leading-relaxed relative overflow-hidden">
@@ -152,13 +152,13 @@ const AIModal: React.FC<AIModalProps> = ({ task, onClose }) => {
             onClick={onClose}
             className="flex-1 py-4 bg-white hover:bg-slate-100 text-slate-600 font-black rounded-2xl transition-all border border-slate-200 shadow-sm text-sm"
           >
-            Dismiss
+            Đóng
           </button>
           <button
             onClick={onClose}
             className="flex-[2] py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl transition-all shadow-lg shadow-indigo-100 text-sm"
           >
-            Execute Solution
+            Thực hiện giải pháp
           </button>
         </div>
       </div>

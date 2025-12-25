@@ -12,7 +12,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ logs }) => {
       <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
         <h3 className="font-black text-xs uppercase tracking-[0.2em] text-slate-400">
           <i className="fa-solid fa-bolt-lightning mr-2 text-indigo-500"></i>
-          Guardian Live
+          Dòng sự kiện
         </h3>
         <span className="flex h-2 w-2 rounded-full bg-emerald-500">
           <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
@@ -23,7 +23,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ logs }) => {
         {logs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 opacity-40">
             <i className="fa-solid fa-satellite-dish text-2xl mb-2"></i>
-            <p className="text-slate-500 text-xs font-bold italic">Listening for events...</p>
+            <p className="text-slate-500 text-xs font-bold italic">Đang lắng nghe sự kiện...</p>
           </div>
         ) : (
           logs.map((log) => (
@@ -33,7 +33,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ logs }) => {
               <p className="text-xs font-bold text-slate-700 mt-1 leading-snug">
                 <span className="text-indigo-600">AI:</span> {log.message}
               </p>
-              <p className="text-[10px] text-slate-400 mt-1 font-medium bg-slate-50 px-2 py-0.5 rounded-md inline-block">Task: {log.taskTitle}</p>
+              <p className="text-[10px] text-slate-400 mt-1 font-medium bg-slate-50 px-2 py-0.5 rounded-md inline-block">Công việc: {log.taskTitle}</p>
             </div>
           ))
         )}

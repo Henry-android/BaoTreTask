@@ -177,7 +177,7 @@ router.post("/:id/analyze", async (req, res) => {
     taskTitle: task.title,
     timestamp,
     message:
-      "System Alert: Task is overdue. Escalating to LLM for mitigation plan.",
+      "Cảnh báo hệ thống: Công việc đang trễ hạn. Chuyển cho AI để đề xuất phương án xử lý.",
   });
 
   try {
@@ -217,7 +217,7 @@ router.post("/:id/analyze", async (req, res) => {
         minute: "2-digit",
       }),
       message:
-        "AI Alert: Failed to reach LLM. Please verify GEMINI_API_KEY and network connectivity.",
+        "Cảnh báo AI: Không thể kết nối LLM. Vui lòng kiểm tra GEMINI_API_KEY và kết nối mạng.",
     });
 
     // Keep the UI functional even when LLM is unavailable/misconfigured.

@@ -14,11 +14,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   user,
   onLogout,
 }) => {
-  const menuItems: { name: MenuTab; icon: string; badge?: boolean }[] = [
-    { name: "Dashboard", icon: "fa-gauge-high" },
-    { name: "Projects", icon: "fa-briefcase" },
-    { name: "AI Insights", icon: "fa-brain", badge: true },
-    { name: "Settings", icon: "fa-gear" },
+  const menuItems: {
+    name: MenuTab;
+    label: string;
+    icon: string;
+    badge?: boolean;
+  }[] = [
+    { name: "Dashboard", label: "Tổng quan", icon: "fa-gauge-high" },
+    { name: "Projects", label: "Dự án", icon: "fa-briefcase" },
+    { name: "AI Insights", label: "AI Insights", icon: "fa-brain", badge: true },
+    { name: "Settings", label: "Cài đặt", icon: "fa-gear" },
   ];
 
   return (
@@ -49,7 +54,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     : "text-slate-400 group-hover:text-indigo-500"
                 }`}
               ></i>
-              <span className="font-bold text-sm">{item.name}</span>
+              <span className="font-bold text-sm">{item.label}</span>
             </div>
             {item.badge && (
               <span className="w-2 h-2 bg-red-500 rounded-full ring-4 ring-red-50"></span>
@@ -72,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {user?.email || "User"}
             </p>
             <p className="text-[10px] text-indigo-600 uppercase font-black tracking-wider">
-              {user?.role === "admin" ? "Admin" : "User"}
+              {user?.role === "admin" ? "Quản trị" : "Người dùng"}
             </p>
           </div>
         </div>
@@ -83,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl font-bold transition-all shadow-sm"
           >
             <i className="fa-solid fa-arrow-right-from-bracket"></i>
-            Logout
+            Đăng xuất
           </button>
         )}
       </div>

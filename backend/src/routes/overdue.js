@@ -31,7 +31,7 @@ router.post("/scan", async (_req, res) => {
       taskTitle: task.title,
       timestamp: timestamp(),
       message:
-        "System Alert: Task is overdue. Escalating to LLM for mitigation plan.",
+        "Cảnh báo hệ thống: Công việc đang trễ hạn. Chuyển cho AI để đề xuất phương án xử lý.",
     });
     createdLogIds.push(String(systemLog._id));
 
@@ -59,7 +59,7 @@ router.post("/scan", async (_req, res) => {
         taskTitle: task.title,
         timestamp: timestamp(),
         message:
-          "AI Alert: Failed to reach LLM. Please verify GEMINI_API_KEY and network connectivity.",
+          "Cảnh báo AI: Không thể kết nối LLM. Vui lòng kiểm tra GEMINI_API_KEY và kết nối mạng.",
       });
       createdLogIds.push(String(failLog._id));
     }

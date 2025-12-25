@@ -8,6 +8,24 @@ interface TaskCardProps {
 }
 
 const TaskCard: React.FC<TaskCardProps> = ({ task, onAnalyze }) => {
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'To Do': return 'Cần làm';
+      case 'In Progress': return 'Đang làm';
+      case 'Done': return 'Hoàn thành';
+      default: return status;
+    }
+  };
+
+  const getPriorityLabel = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'Cao';
+      case 'Medium': return 'Trung bình';
+      case 'Low': return 'Thấp';
+      default: return priority;
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'To Do': return 'bg-slate-100 text-slate-600 border-slate-200';
@@ -32,11 +50,11 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onAnalyze }) => {
     }`}>
       <div className="flex justify-between items-start mb-4">
         <span className={`text-[10px] uppercase tracking-widest font-black px-2.5 py-1 rounded-lg border ${getStatusColor(task.status)}`}>
-          {task.status}
+          {getStatusLabel(task.status)}
         </span>
         <span className={`text-xs font-bold flex items-center gap-1.5 ${getPriorityColor(task.priority)}`}>
           <i className="fa-solid fa-fire-flame-curved text-[10px]"></i>
-          {task.priority}
+          {getPriorityLabel(task.priority)}
         </span>
       </div>
 
@@ -51,7 +69,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onAnalyze }) => {
         </div>
         
         <div className={`flex flex-col items-end ${task.isOverdue ? 'text-red-600' : 'text-slate-400'}`}>
-          <span className="text-[9px] uppercase font-black tracking-widest opacity-60">Due Date</span>
+          <span className="text-[9px] uppercase font-black tracking-widest opacity-60">Hạn chót</span>
           <span className="text-xs font-bold">{task.deadline}</span>
         </div>
       </div>
@@ -60,14 +78,14 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onAnalyze }) => {
         <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
           <span className="flex items-center gap-1.5 text-red-600 text-[11px] font-black uppercase tracking-tighter animate-pulse">
             <i className="fa-solid fa-clock-rotate-left"></i>
-            Overdue
+            Trễ hạn
           </span>
           <button
             onClick={() => onAnalyze(task)}
             className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl transition-all shadow-md shadow-red-100"
           >
             <i className="fa-solid fa-robot"></i>
-            AI Risk Analysis
+            Phân tích rủi ro AI
           </button>
         </div>
       )}
