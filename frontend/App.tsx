@@ -6,9 +6,11 @@ import AIModal from "./components/AIModal";
 import ActivityFeed from "./components/ActivityFeed";
 import {
   createTask,
+  fetchAssignableUsers,
   fetchLogs,
   fetchTasks,
   scanOverdue,
+  type AssignableUser,
   type CreateTaskInput,
 } from "./services/backendApi";
 import AuthPanel from "./components/AuthPanel";
@@ -35,6 +37,8 @@ const App: React.FC = () => {
   const [newTaskOpen, setNewTaskOpen] = useState(false);
   const [creatingTask, setCreatingTask] = useState(false);
   const [newTaskError, setNewTaskError] = useState<string | null>(null);
+  const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>([]);
+  const [loadingAssignableUsers, setLoadingAssignableUsers] = useState(false);
   const [newTaskForm, setNewTaskForm] = useState<CreateTaskInput>(() => {
     const today = new Date();
     const in7 = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -43,12 +47,41 @@ const App: React.FC = () => {
     const dd = String(in7.getDate()).padStart(2, "0");
     return {
       title: "",
-      assignee: { name: "", avatar: "" },
+      assigneeUserId: "",
       deadline: `${yyyy}-${mm}-${dd}`,
       status: "To Do",
       priority: "Medium",
     };
   });
+
+  // Load assignable users when Create Task modal opens (admin-only flow)
+  useEffect(() => {
+    (async () => {
+      if (!newTaskOpen) return;
+      if (!currentUser || currentUser.role !== "admin") return;
+
+      setLoadingAssignableUsers(true);
+      setNewTaskError(null);
+      try {
+        const users = await fetchAssignableUsers();
+        setAssignableUsers(users);
+
+        // Default selection
+        if (users.length > 0) {
+          setNewTaskForm((p) => ({
+            ...p,
+            assigneeUserId: p.assigneeUserId || users[0].id,
+          }));
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Failed to load users";
+        setNewTaskError(msg);
+        setAssignableUsers([]);
+      } finally {
+        setLoadingAssignableUsers(false);
+      }
+    })();
+  }, [newTaskOpen, currentUser]);
 
   const notifiedOverdueTaskIdsRef = useRef<Set<string>>(new Set());
 
@@ -418,7 +451,8 @@ const App: React.FC = () => {
               ></div>
             </div>
             <p className="text-xs font-bold text-indigo-100 leading-relaxed italic">
-              "AI phát hiện các điểm nghẽn quan trọng. Nên ưu tiên tối ưu các hạng mục có rủi ro cao."
+              "AI phát hiện các điểm nghẽn quan trọng. Nên ưu tiên tối ưu các
+              hạng mục có rủi ro cao."
             </p>
           </div>
         </aside>
@@ -457,20 +491,14 @@ const App: React.FC = () => {
                 setCreatingTask(true);
                 try {
                   const trimmedTitle = newTaskForm.title.trim();
-                  const trimmedAssignee = newTaskForm.assignee.name.trim();
-                  const avatar = newTaskForm.assignee.avatar.trim();
-                  const avatarSeed = encodeURIComponent(
-                    trimmedAssignee.toLowerCase().replace(/\s+/g, "-") || "user"
-                  );
+                  const assigneeUserId = newTaskForm.assigneeUserId.trim();
+                  if (!assigneeUserId) {
+                    throw new Error("Assignee is required");
+                  }
                   const payload: CreateTaskInput = {
                     ...newTaskForm,
                     title: trimmedTitle,
-                    assignee: {
-                      name: trimmedAssignee,
-                      avatar:
-                        avatar ||
-                        `https://picsum.photos/seed/${avatarSeed}/100/100`,
-                    },
+                    assigneeUserId,
                   };
 
                   const created = await createTask(payload);
@@ -509,20 +537,30 @@ const App: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                    Assignee Name
+                    Assignee
                   </label>
-                  <input
-                    value={newTaskForm.assignee.name}
+                  <select
+                    value={newTaskForm.assigneeUserId}
                     onChange={(e) =>
                       setNewTaskForm((p) => ({
                         ...p,
-                        assignee: { ...p.assignee, name: e.target.value },
+                        assigneeUserId: e.target.value,
                       }))
                     }
                     className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 font-bold text-sm"
-                    placeholder="Nguyễn Văn A"
                     required
-                  />
+                    disabled={loadingAssignableUsers}
+                  >
+                    {assignableUsers.length === 0 ? (
+                      <option value="">No users available</option>
+                    ) : (
+                      assignableUsers.map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.email}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
 
                 <div>
@@ -542,23 +580,6 @@ const App: React.FC = () => {
                     required
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-                  Assignee Avatar (optional)
-                </label>
-                <input
-                  value={newTaskForm.assignee.avatar}
-                  onChange={(e) =>
-                    setNewTaskForm((p) => ({
-                      ...p,
-                      assignee: { ...p.assignee, avatar: e.target.value },
-                    }))
-                  }
-                  className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100 font-bold text-sm"
-                  placeholder="https://..."
-                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

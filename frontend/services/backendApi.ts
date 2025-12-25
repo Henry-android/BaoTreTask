@@ -1,5 +1,10 @@
 import type { ActivityLog, AIRiskResult, Task } from "../types";
 
+export type AssignableUser = {
+  id: string;
+  email: string;
+};
+
 function getToken() {
   try {
     return localStorage.getItem("auth_token") || "";
@@ -34,14 +39,20 @@ export async function fetchTasks(): Promise<Task[]> {
 
 export type CreateTaskInput = Pick<
   Task,
-  "title" | "assignee" | "deadline" | "status" | "priority"
->;
+  "title" | "deadline" | "status" | "priority"
+> & {
+  assigneeUserId: string;
+};
 
 export async function createTask(input: CreateTaskInput): Promise<Task> {
   return http<Task>("/api/tasks", {
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+export async function fetchAssignableUsers(): Promise<AssignableUser[]> {
+  return http<AssignableUser[]>("/api/users");
 }
 
 export async function fetchLogs(): Promise<ActivityLog[]> {

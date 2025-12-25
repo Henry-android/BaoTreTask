@@ -10,6 +10,7 @@ const { seedIfEmpty } = require("./seed");
 const tasksRoute = require("./routes/tasks");
 const logsRoute = require("./routes/logs");
 const overdueRoute = require("./routes/overdue");
+const usersRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
 const { requireAuth } = require("./middleware/auth");
 
@@ -39,6 +40,7 @@ async function main() {
   app.use("/api/tasks", tasksRoute);
   app.use("/api/logs", logsRoute);
   app.use("/api/overdue", overdueRoute);
+  app.use("/api/users", usersRoute);
 
   // Minimal error handler
   // eslint-disable-next-line no-unused-vars

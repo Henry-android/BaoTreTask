@@ -36,6 +36,26 @@ async function seedIfEmpty() {
     }
   }
 
+  // 1.5) Seed a few normal users for demo so admin can assign tasks.
+  // Only in non-production.
+  if (!isProd) {
+    const demoUsers = [
+      { email: "user1@example.com", password: "user12345" },
+      { email: "user2@example.com", password: "user12345" },
+      { email: "user3@example.com", password: "user12345" },
+    ];
+
+    for (const u of demoUsers) {
+      const email = u.email.toLowerCase().trim();
+      if (!email) continue;
+      const existing = await User.findOne({ email });
+      if (existing) continue;
+
+      const passwordHash = await bcrypt.hash(u.password, 10);
+      await User.create({ email, passwordHash, role: "user" });
+    }
+  }
+
   // 2) Seed tasks only when empty.
   const count = await Task.countDocuments();
   if (count > 0) return;

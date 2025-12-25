@@ -1,6 +1,8 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const Task = require("../models/Task");
 const ActivityLog = require("../models/ActivityLog");
+const User = require("../models/User");
 const { analyzeTaskWithGemini } = require("../llm");
 const { requireRole } = require("../middleware/auth");
 
@@ -67,7 +69,8 @@ router.get("/", async (req, res) => {
 
 router.post("/", requireRole("admin"), async (req, res, next) => {
   try {
-    const { title, assignee, deadline, status, priority } = req.body || {};
+    const { title, assigneeUserId, deadline, status, priority } =
+      req.body || {};
 
     const normalizedTitle = typeof title === "string" ? title.trim() : "";
     const normalizedDeadline =
@@ -75,18 +78,17 @@ router.post("/", requireRole("admin"), async (req, res, next) => {
     const normalizedStatus = typeof status === "string" ? status.trim() : "";
     const normalizedPriority =
       typeof priority === "string" ? priority.trim() : "";
-    const assigneeObj =
-      assignee && typeof assignee === "object" ? assignee : {};
-    const assigneeName =
-      typeof assigneeObj.name === "string" ? assigneeObj.name.trim() : "";
-    const assigneeAvatarRaw =
-      typeof assigneeObj.avatar === "string" ? assigneeObj.avatar.trim() : "";
+    const normalizedAssigneeUserId =
+      typeof assigneeUserId === "string" ? assigneeUserId.trim() : "";
 
     if (!normalizedTitle) {
       return res.status(400).json({ error: "title is required" });
     }
-    if (!assigneeName) {
-      return res.status(400).json({ error: "assignee.name is required" });
+    if (!normalizedAssigneeUserId) {
+      return res.status(400).json({ error: "assigneeUserId is required" });
+    }
+    if (!mongoose.isValidObjectId(normalizedAssigneeUserId)) {
+      return res.status(400).json({ error: "assigneeUserId is invalid" });
     }
     if (!normalizedDeadline) {
       return res.status(400).json({ error: "deadline is required" });
@@ -112,11 +114,23 @@ router.post("/", requireRole("admin"), async (req, res, next) => {
       });
     }
 
+    const assigneeUser = await User.findById(normalizedAssigneeUserId).select(
+      "email role"
+    );
+    if (!assigneeUser) {
+      return res.status(400).json({ error: "Assignee user not found" });
+    }
+    if (assigneeUser.role !== "user") {
+      return res
+        .status(400)
+        .json({ error: "Assignee must be a normal user (not admin)" });
+    }
+
+    const assigneeName = assigneeUser.email;
     const avatarSeed = encodeURIComponent(
       assigneeName.toLowerCase().replace(/\s+/g, "-") || "user"
     );
-    const effectiveAvatar =
-      assigneeAvatarRaw || `https://picsum.photos/seed/${avatarSeed}/100/100`;
+    const effectiveAvatar = `https://picsum.photos/seed/${avatarSeed}/100/100`;
 
     const task = await Task.create({
       title: normalizedTitle,
